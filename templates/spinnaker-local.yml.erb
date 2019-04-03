@@ -1,0 +1,229 @@
+# This file is intended to override the default configuration in the
+# spinnaker.yml file while providing guidance on the mostly likely
+# configuration parameters to be changed.
+#
+# In order for Spinnaker to discover it, it must be copied to a file named
+# "spinnaker-local.yml" and placed in /opt/spinnaker/config
+# (or when running from source code, in the $HOME/.spinnaker directory.)
+#
+# A better practice could be to create the spinnaker-local.yml file by
+# hand with only the particular attributes that you want to override
+# and use the spinnaker.yml file as your guide since it is spinnaker.yml
+# that we are overriding here in the first place.
+
+global:
+  spinnaker:
+    timezone: '<%= scope['::spinnaker::spinnaker_timezone'] %>'
+
+providers:
+  # See http://www.spinnaker.io/v1.0/docs/target-deployment-setup
+  # for general information about configuring spinnaker platform providers.
+
+  # Each of the following providers can be enabled independent of all other
+  # providers unless otherwise noted.
+  #
+  # Each provider can be enabled by setting its 'enabled' attribute to true.
+  # As a rule of thumb, each provider defines a 'primaryCredentials' block
+  # that configures a default account for Spinnaker to use on that platform.
+  # If additional accounts are desired, then add those accounts to a
+  # custom clouddriver-local.yml file and consult clouddriver.yml for more
+  # information on what to add there.
+
+  aws:
+    # For more information on configuring Amazon Web Services (aws), see
+    # http://www.spinnaker.io/v1.0/docs/target-deployment-setup#section-amazon-web-services-setup
+
+    enabled: <%= scope['::spinnaker::aws_enabled'] %>
+    defaultRegion: <%= scope['::spinnaker::aws_default_region'] %>
+    defaultIAMRole: <%= scope['::spinnaker::aws_default_iam_role'] %>
+    primaryCredentials:
+      name: <%= scope['::spinnaker::aws_primary_credentials'] %>
+      # Store actual credentials in $HOME/.aws/credentials. See spinnaker.yml
+      # for more information, including alternatives.
+
+    # {{name}} will be interpolated with the aws account name (e.g. "my-aws-account-keypair").
+    defaultKeyPairTemplate: "{{name}}-keypair"
+
+  dockerRegistry:
+    enabled: <%= scope['::spinnaker::docker_enabled'] %>
+
+  kubernetes:
+    enabled: <%= scope['::spinnaker::kubernetes_enabled'] %>
+
+services:
+  default:
+    # These defaults can be modified to change all the spinnaker subsystems
+    # (clouddriver, gate, etc) at once, but not external systems (jenkins, etc).
+    # Individual systems can still be overridden using their own section entry
+    # directly under 'services'.
+    protocol: <%= scope['::spinnaker::default_protocol'] %>
+    host: <%= scope['::spinnaker::default_host'] %>
+
+  redis:
+    # If you are using a remote redis server, you can set the host here.
+    # If the remote server is on a different port or url, you can add
+    # a "port" or "baseUrl" field here instead.
+    host: <%= scope['::spinnaker::redis_server'] %>
+    port: <%= scope['::spinnaker::redis_port'] %>
+    configuration:
+      secure: <%= scope['::spinnaker::redis_configuration_secure'] %>
+
+  cassandra:
+    # If you are using a remote cassandra server, you can set the host here.
+    # If the remote server is on a different port or url, you can add
+    # a "port" or "baseUrl" field here instead. You may also need to set
+    # the cluster name. See the main spinnaker.yml file for more attributes.
+    host: <%= scope['::spinnaker::cassandra_host'] %>
+
+  docker:
+    # This target repository is used by the bakery to publish baked docker images.
+    # Do not include http://.
+    targetRepository: <%= scope['::spinnaker::docker_targetRepository'] %>
+
+  jenkins:
+    # If you are integrating Jenkins, set its location here using the baseUrl
+    # field and provide the username/password credentials.
+    # You must also enable the "igor" service listed separately.
+    #
+    # If you have multiple jenkins servers, you will need to list
+    # them in an igor-local.yml. See jenkins.masters in config/igor.yml.
+    #
+    # Note that jenkins is not installed with Spinnaker so you must obtain this
+    # on your own if you are interested.
+    enabled: <%= scope['::spinnaker::jenkins_enabled'] %>
+    defaultMaster:
+      name: <%= scope['::spinnaker::jenkins_defaultMaster_name'] %>
+      baseUrl: <%= scope['::spinnaker::jenkins_defaultMaster_baseUrl'] %>
+      username: <%= scope['::spinnaker::jenkins_defaultMaster_username'] %>
+      password: <%= scope['::spinnaker::jenkins_defaultMaster_password'] %>
+
+  travis:
+    # If you are integrating Travis, set its location here using the baseUrl
+    # and adress fields and provide the githubToken for authentication.
+    # You must also enable the "igor" service listed separately.
+    #
+    # If you have multiple travis servers, you will need to list
+    # them in an igor-local.yml. See travis.masters in config/igor.yml.
+    #
+    # Note that travis is not installed with Spinnaker so you must obtain this
+    # on your own if you are interested.
+    enabled: <%= scope['::spinnaker::travis_enabled'] %>
+    defaultMaster:
+      name: <%= scope['::spinnaker::travis_defaultMaster_name'] %>
+      baseUrl: <%= scope['::spinnaker::travis_defaultMaster_baseUrl'] %>
+      address: <%= scope['::spinnaker::travis_defaultMaster_address'] %>
+      githubToken: <%= scope['::spinnaker::travis_defaultMaster_githubToken'] %>
+
+
+  spectator:
+    webEndpoint:
+      enabled: <%= scope['::spinnaker::spectator_webEndpoint_enabled'] %>
+
+  stackdriver:
+    enabled: <%= scope['::spinnaker::stackdriver_enabled'] %>
+
+  clouddriver:
+    aws:
+      udf:
+        # Controls whether UserDataProviders are used to populate user data of
+        # new server groups. If false, user data is copied over from ancestor
+        # server groups on both CopyLastAsgAtomicOperation and
+        # ModifyAsgLaunchConfigurationOperation (only if no user data is
+        # provided on the given request).
+        enabled: <%= scope['::spinnaker::clouddriver_aws_udf_enabled'] %>
+
+  igor:
+    # If you are integrating Jenkins then you must also enable Spinnaker's
+    # "igor" subsystem.
+    enabled: <%= scope['::spinnaker::igor_enabled'] %>
+
+  deck:
+    # Frontend configuration.
+    # If you are proxying Spinnaker behind a single host, you may want to
+    # override these values. Remember to run `reconfigure_spinnaker.sh` after.
+    baseUrl: https://<%= scope['::spinnaker::deck_baseurl'] %>.<%= scope['::spinnaker::deck_domain'] %>
+    gateUrl: https://<%= scope['::spinnaker::deck_gateurl'] %>.<%= scope['::spinnaker::deck_domain'] %>
+    #bakeryUrl: ${services.deck.baseUrl}/rosco
+    auth:
+      enabled: <%= scope['::spinnaker::deck_auth_enabled'] %>
+
+  rosco:
+    # You need to provide the fully-qualified path to the directory containing
+    # the packer templates.
+    # They typically live in rosco's config/packer directory.
+    configDir: <%= scope['::spinnaker::rosco_configDir'] %>
+
+  fiat:
+    enabled: <%= scope['::spinnaker::fiat_enabled'] %>
+
+  chaos:
+    enabled: <%= scope['::spinnaker::chaos_enabled'] %>
+
+  front50:
+    cassandra:
+      enabled: <%= scope['::spinnaker::front50_cassandra_enabled'] %>
+    redis:
+      enabled: <%= scope['::spinnaker::front50_redis_enabled'] %>
+      host: <%= scope['::spinnaker::redis_server'] %>
+      port: <%= scope['::spinnaker::redis_port'] %>
+      configuration:
+        secure: <%= scope['::spinnaker::redis_configuration_secure'] %>
+
+    # To use a cloud storage bucket on Amazon S3 or Google Cloud Storage instead
+    # of cassandra, set the storage_bucket, disable cassandra, and enable one of
+    # the service providers.
+    storage_bucket: <%= scope['::spinnaker::aws_default_storage_bucket'] %>
+    gcs:
+      enabled: <%= scope['::spinnaker::front50_gcs_enabled'] %>
+    s3:
+      enabled: <%= scope['::spinnaker::front50_s3_enabled'] %>
+
+    # To use an Azure storage account instead of Cassandra:
+    # Disable Cassandra above, enable azs, and set the storage account name and key
+    azs:
+      enabled: <%= scope['::spinnaker::front50_azs_enabled'] %>
+      storageAccountName: <%= scope['::spinnaker::front50_azs_storageAccountName'] %>
+      storageAccountKey: <%= scope['::spinnaker::front50_azs_storageAccountKey'] %>
+      storageContainerName: <%= scope['::spinnaker::front50_azs_storageContainerName'] %>
+
+  gate:
+    host: <%= scope['::spinnaker::gate_host'] %>
+    port: <%= scope['::spinnaker::gate_port'] %>
+
+  echo:
+    port: <%= scope['::spinnaker::echo_port'] %>
+    # Persistence mechanism to use
+    cassandra:
+      enabled: <%= scope['::spinnaker::echo_cassandra_enabled'] %>
+    inMemory:
+      enabled: <%= scope['::spinnaker::echo_inMemory_enabled'] %>
+
+    cron:
+      # Allow pipeline triggers to run periodically via cron expressions.
+      enabled: <%= scope['::spinnaker::echo_cron_enabled'] %>
+
+    notifications:
+      # The following blocks can enable Spinnaker to send notifications
+      # using the corresponding mechanism.
+      # See http://www.spinnaker.io/docs/notifications-and-events-guide
+      # for more information.
+      mail:
+        enabled: <%= scope['::spinnaker::echo_mail_enabled'] %>
+        host: <%= scope['::spinnaker::echo_mail_host'] %>
+        fromAddress: <%= scope['::spinnaker::echo_mail_fromAddress'] %>
+      hipchat:
+        enabled: <%= scope['::spinnaker::echo_hipchat_enabled'] %>
+        url: <%= scope['::spinnaker::echo_hipchat_url'] %>
+        token: <%= scope['::spinnaker::echo_hipchat_token'] %>
+        botName: <%= scope['::spinnaker::echo_hipchat_botName'] %>
+      sms:
+        enabled: <%= scope['::spinnaker::echo_sms_enabled'] %>
+        account: <%= scope['::spinnaker::echo_sms_account'] %>
+        token: <%= scope['::spinnaker::echo_sms_token'] %>
+        from: <%= scope['::spinnaker::echo_sms_from'] %>
+      slack:
+        # See https://api.slack.com/bot-users for details about using bots
+        # and how to create your own bot user.
+        enabled: <%= scope['::spinnaker::echo_slack_enabled'] %>
+        token: <%= scope['::spinnaker::echo_slack_token'] %>
+        botName: <%= scope['::spinnaker::echo_slack_botname'] %>

@@ -1,0 +1,11 @@
+auth:
+  groupMembership:
+    service: ldap
+    ldap:
+      url: <%= scope['::spinnaker::fiat_ldap_url'] %>
+      userDnPattern: <%= scope['::spinnaker::fiat_userDnPattern'] %>
+      managerDn: <%= scope['::spinnaker::fiat_managerDn'] %>
+      managerPassword: <%= scope['::spinnaker::fiat_managerPassword'] %>
+      groupSearchBase: <%= scope['::spinnaker::fiat_groupSearchBase'] %>
+      groupSearchFilter: <%= scope['::spinnaker::fiat_groupSearchFilter'] %>
+      groupRoleAttributes: <%= scope['::spinnaker::fiat_groupRoleAttributes'] %>

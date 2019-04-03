@@ -1,0 +1,13 @@
+{
+  "name": "spinnaker",
+  "version": "0.1.0",
+  "author": "Adobe Systems - Popescu Dan",
+  "summary": "Spinnaker module",
+  "license": "Apache 2.0",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ]
+}
