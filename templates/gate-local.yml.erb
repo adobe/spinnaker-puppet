@@ -1,0 +1,14 @@
+server:
+  tomcat:
+    protocolHeader: X-Forwarded-Proto
+    remoteIpHeader: X-Forwarded-For
+    internalProxies: .*
+
+ldap:
+  enabled: <%= scope['::spinnaker::gate_ldap_enabled'] %>
+  url: <%= scope['::spinnaker::gate_ldap_url'] %>
+  userDnPattern: <%= scope['::spinnaker::gate_ldap_userDnPattern'] %>
+
+redis:
+  configuration:
+    secure: <%= scope['::spinnaker::redis_configuration_secure'] %>

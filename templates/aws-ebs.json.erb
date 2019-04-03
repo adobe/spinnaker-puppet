@@ -1,0 +1,110 @@
+{
+  "variables": {
+    "install_packages": "/opt/rosco/config/packer/install_packages.sh",
+
+    "aws_region": null,
+    "aws_source_ami": null,
+    "aws_instance_type": null,
+    "aws_ssh_username": null,
+    "aws_ami_name": null,
+    "aws_iam_instance_profile": null,
+    "aws_ena_support": "true",
+    "aws_sriov_support": "true",
+    "aws_ami_regions": null,
+    "aws_ami_os": null,
+    "aws_ami_version": "",
+    "aws_ami_releasever": "",
+    "packer_ssh_interface": "<%= scope['::spinnaker::packer_ssh_interface'] %>",
+    "packer_vpc_id": "<%= scope['::spinnaker::packer_vpc_id'] %>",
+    "packer_subnet_id": "<%= scope['::spinnaker::packer_subnet_id'] %>",
+    "packer_temporary_security_group_source_cidr": "<%= scope['::spinnaker::packer_temporary_security_group_source_cidr'] %>",
+
+    <%- for idx in (1..10) -%>
+    "bootstrap_env_<%= idx %>":"",
+    <%- end -%>
+    <%- for idx in (1..10) -%>
+    "bootstrap_secrets_<%= idx %>":"",
+    <%- end -%>
+    <%- for idx in (1..10) -%>
+    "bake_env_<%= idx %>":"",
+    <%- end -%>
+    "aws_ami_upgrade": "false",
+    "packages": null
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "{{user `aws_region`}}",
+      "source_ami": "{{user `aws_source_ami`}}",
+      "instance_type": "{{user `aws_instance_type`}}",
+      "ssh_username": "{{user `aws_ssh_username`}}",
+      "ssh_pty": "true",
+      "ssh_interface": "{{user `packer_ssh_interface`}}",
+      "vpc_id": "{{user `packer_vpc_id`}}",
+      "subnet_id": "{{user `packer_subnet_id`}}",
+      "temporary_security_group_source_cidr": "{{user `packer_temporary_security_group_source_cidr`}}",
+      "ami_name": "{{user `aws_ami_name`}} {{isotime \"2006-01-02 03_04\"}}",
+      "iam_instance_profile": "profile_makeami-{{user `aws_iam_instance_profile`}}",
+      "ena_support": "{{user `aws_ena_support`}}",
+      "sriov_support": "{{user `aws_sriov_support`}}",
+      "user_data": "#cloud-config\nrepo_releasever: {{user `aws_ami_releasever`}}\nmounts:\n  - [ swap ]\nruncmd:\n  - echo 'Defaults:ec2-user !requiretty' > /etc/sudoers.d/ec2-user-tty\nsystem_info:\n  default_user:\n    name: ec2-user",
+      "ami_users": [
+        "410800179236",
+        "451755106083",
+        "492284970789",
+        "653465211974",
+        "907158410049",
+        "975822914085",
+        "317085423413"
+      ],
+      "ami_regions": "{{user `aws_ami_regions`}}",
+      "run_tags": {
+        "Name": "{{user `aws_ami_name`}} {{isotime \"2006-01-02 03_04\"}}"
+      },
+      "tags": {
+        "aws_ami_build_time": "{{timestamp}}",
+        "aws_ami_builder": "spinnaker",
+        "aws_ami_os": "{{user `aws_ami_os`}}"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "cp /home/ec2-user/.ssh/authorized_keys /tmp"
+      ]
+    },
+    {
+        "type": "shell",
+        "script": "{{user `install_packages` }}",
+        "expect_disconnect": true,
+        "environment_vars": [
+          <%- for idx in (1..10) -%>
+          "bootstrap_env_<%= idx %>={{user `bootstrap_env_<%= idx %>` }}",
+          <%- end -%>
+          <%- for idx in (1..10) -%>
+          "bootstrap_secrets_<%= idx %>={{user `bootstrap_secrets_<%= idx %>` }}",
+          <%- end -%>
+          <%- for idx in (1..10) -%>
+          "bake_env_<%= idx %>={{user `bake_env_<%= idx %>` }}",
+          <%- end -%>
+          "aws_iam_instance_profile={{user `aws_iam_instance_profile`}}",
+          "ami_os={{user `aws_ami_os`}}",
+          "ami_name={{user `aws_ami_name`}}",
+          "upgrade={{user `aws_ami_upgrade`}}",
+          "packages={{user `packages`}}"
+        ],
+        "pause_before": "10s"
+    },
+    {
+      "type": "shell",
+      "pause_before": "10s",
+      "inline": [
+        "sudo yum install cloud-init cloud-utils-growpart dracut-modules-growroot -y",
+        "sudo dracut -f",
+        "sudo sed -i.bak /etc/cloud/cloud.cfg -e 's/name: centos/name: ec2-user/'"
+      ]
+    }
+  ]
+}

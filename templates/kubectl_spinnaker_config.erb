@@ -1,0 +1,18 @@
+apiVersion: v1
+clusters:
+- cluster:
+    server: <%= scope['::spinnaker::kubernetes_api_address'] %>
+    certificate-authority-data: <%= scope['::spinnaker::kubernetes_api_certificate'] %>
+  name: <%= scope['::spinnaker::kubernetes_cluster_name'] %>
+contexts:
+- context:
+    cluster: <%= scope['::spinnaker::kubernetes_cluster_name'] %>
+    user: <%= scope['::spinnaker::kubernetes_service_account_name'] %>
+  name: <%= scope['::spinnaker::kubernetes_cluster_name'] %>
+current-context: <%= scope['::spinnaker::kubernetes_cluster_name'] %>
+ind: Config
+preferences: {}
+users:
+- name: <%= scope['::spinnaker::kubernetes_service_account_name'] %>
+  user:
+    token: <%= scope['::spinnaker::kubernetes_service_account_token'] %>
