@@ -5,7 +5,7 @@
   "summary": "Spinnaker module",
   "license": "Apache 2.0",
   "source": "https://github.com/adobe/spinnaker-puppet",
-  "tags": "spinnaker",
+  "tags": ["spinnaker"],
   "project_page": null,
   "issues_url": null,
   "dependencies": [
