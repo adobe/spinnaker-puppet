@@ -465,7 +465,7 @@ Extracting secrets from Vault has not been implemented yet.
 ### Contributing
 
 Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING.md) for more information.
-GitHub [repository](https://github.com/adobe/spinnaker-puppet)
+GitHub [repository](https://github.com/adobe/spinnaker-puppet) 
 
 ### Licensing
 
