@@ -451,7 +451,7 @@ Testing and patches for other platforms are welcomed.
 
 #### Known missing features
 
-There are currently no initd or systemd files for starting the Spinnaker daemons.
+There are currently no initd or systemd files for starting the Spinnaker daemons, this is why the service.pp file is empty.
 
 Spinnaker microservices are started by a script located in `/opt/spinnaker/bin/start_spinnaker.sh` and has been removed
 completely in newer versions.
@@ -465,6 +465,7 @@ Extracting secrets from Vault has not been implemented yet.
 ### Contributing
 
 Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING.md) for more information.
+GitHub [repository](https://github.com/adobe/spinnaker-puppet) 
 
 ### Licensing
 
