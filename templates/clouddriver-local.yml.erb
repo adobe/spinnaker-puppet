@@ -1,0 +1,42 @@
+aws:
+  accounts:
+<%- Array(scope.lookupvar('spinnaker::clouddriver_aws_accounts')).each do |account| -%>
+    - name: <%= account['name'] %>
+      assumeRole: role/<%= scope.lookupvar('spinnaker::clouddriver_assumerole') %>
+      accountId: <%= account['accountId'] %>
+      regions:
+      <%- Array(account['regions']).each do |region| -%>
+        - name: <%= region %>
+      <%- end -%>
+      lifecycleHooks:
+      <%- Array(account['lifecycleHooks']).each do |lifecycleHook| -%>
+      - defaultResult: '<%= lifecycleHook['defaultResult'] %>'
+        heartbeatTimeout: <%= lifecycleHook['heartbeatTimeout'] %>
+        lifecycleTransition: '<%= lifecycleHook['lifecycleTransition'] %>'
+        notificationTargetARN: '<%= lifecycleHook['notificationTargetARN'] %>'
+        roleARN: '<%= lifecycleHook['roleARN'] %>'
+      <%- end -%>
+<%- end -%>
+
+kubernetes:
+  accounts:
+<%- Array(scope.lookupvar('spinnaker::clouddriver_kubernetes_accounts')).each do |account| -%>
+    - name: <%= account['name'] %>
+      dockerRegistries:
+      <%- Array(account['docker_registries']).each do |docker_registry| -%>
+        - accountName: <%= docker_registry %>
+      <%- end -%>
+<%- end -%>
+
+dockerRegistry:
+  accounts:
+<%- Array(scope.lookupvar('spinnaker::clouddriver_docker_registries')).each do |registry| -%>
+    - name: <%= registry['name'] %>
+      address: <%= registry['address'] %>
+      username: <%= registry['username'] %>
+      password: <%= registry['password'] %>
+      repositories:
+      <%- Array(registry['repositories']).each do |repository| -%>
+        - accountName: <%= repository %>
+      <%- end -%>
+<%- end -%>

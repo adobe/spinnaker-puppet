@@ -1,0 +1,3 @@
+<% user = CGI.escape(scope['::spinnaker::monitoring_gateUser']) -%>
+<% password = CGI.escape(scope['::spinnaker::monitoring_gatePassword']) -%>
+metrics_url: "http://<%= user %>:<%= password %>@localhost:8084/spectator/metrics"
