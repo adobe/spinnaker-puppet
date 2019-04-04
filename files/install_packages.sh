@@ -57,7 +57,6 @@ function install_dependencies() {
     start_timer
     sudo yum install epel-release -y || sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     sudo yum install redhat-lsb -y || sudo yum install redhat-lsb-core -y
-    sudo yum install libsss_sudo -y
     lsb_distid=$(lsb_release  -i | tr -d "\t "| cut -f 2 -d ":")
     major_release=$(lsb_release -r | tr -d "\t" | cut -f 2 -d ":" | cut -f 1 -d ".")
     log "lsb_distid=${lsb_distid}"
@@ -67,20 +66,25 @@ function install_dependencies() {
     case $lsb_distid in
         CentOS)
             sudo yum install python python-pip python-devel python-setuptools -y
+            sudo yum install sssd-common -y
         ;;
         Amazon)
            case $major_release in
                 2)
                    sudo yum install python python-pip python-devel python-setuptools -y
+                   sudo yum install sssd-common -y
            esac
         ;;
         AmazonAMI)
             case $major_release in
                 2014)
-                    sudo yum install python26 python26-pip python26-devel python26-setuptools -y
+                    sudo sudo yum install python27 python27-pip python27-devel python27-setuptools -y
+                    sudo ln -s /usr/bin/pip-2.7 /usr/bin/pip
+                    sudo pip install setuptools --upgrade --ignore-installed
                 ;;
                 2017)
                     sudo yum install python27 python27-pip python27-devel python27-setuptools -y
+                    sudo yum install sssd-common -y
             esac
     esac
     sudo pip install -U awscli boto boto3
